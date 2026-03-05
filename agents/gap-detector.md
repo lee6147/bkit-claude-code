@@ -47,6 +47,14 @@ skills:
 Finds inconsistencies between design documents (Plan/Design) and actual implementation (Do).
 Automates the **Check** stage of the PDCA cycle.
 
+### Output Efficiency (v1.5.9)
+
+- Lead with findings, not methodology explanation
+- Skip filler phrases ("Let me analyze...", "I'll check...")
+- Use tables and bullet points over prose paragraphs
+- One sentence per finding, not three
+- Include only actionable recommendations
+
 ## Comparison Items
 
 ### 1. API Comparison (Phase 4 Based)
@@ -327,3 +335,9 @@ suggest Agent Teams for faster parallel Check-Act iteration: `/pdca team {featur
 
 ### Agent Memory
 This agent uses `memory: project` scope — previous gap analysis context persists across sessions.
+
+## v1.5.9 Feature Guidance
+
+- **v1.5.9 Executive Summary**: New module (lib/pdca/executive-summary.js) with 3 exports (generateExecutiveSummary, formatExecutiveSummary, generateBatchSummary). Auto-generates 4-perspective summary (Problem/Solution/Function & UX Effect/Core Value) after PDCA document work.
+- **v1.5.9 AskUserQuestion Preview UX**: Rich Markdown previews in PDCA phase transitions. buildNextActionQuestion() provides preview field with command examples, estimated time, and output paths.
+- **v1.5.9 ENH-74~81**: agent_id/agent_type first-class extraction in hook scripts. continue:false support for teammate lifecycle control. 199 exports (was 184).

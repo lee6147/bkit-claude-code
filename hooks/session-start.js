@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * bkit Vibecoding Kit - SessionStart Hook (v1.5.8)
+ * bkit Vibecoding Kit - SessionStart Hook (v1.5.9)
  * Dedicated plugin for Claude Code
  *
  * v1.5.7 Changes:
@@ -150,7 +150,7 @@ debugLog('SessionStart', 'Hook executed', {
   platform: BKIT_PLATFORM
 });
 
-// v1.5.8: Auto-migration from docs/ flat paths to .bkit/ structured paths
+// v1.5.9: Auto-migration from docs/ flat paths to .bkit/ structured paths
 try {
   const { STATE_PATHS, LEGACY_PATHS, ensureBkitDirs } = require('../lib/core/paths');
   ensureBkitDirs();
@@ -532,7 +532,7 @@ function getTriggerKeywordTable() {
 
 💡 Use natural language and the appropriate tool will be activated automatically.
 
-### CC Built-in Command Integration (v1.5.8)
+### CC Built-in Command Integration (v1.5.9)
 | Command | When to Use | PDCA Phase |
 |---------|-------------|------------|
 | /simplify | After Check ≥90% or code review | Check → Report |
@@ -565,7 +565,7 @@ const triggerTable = getTriggerKeywordTable();
 
 // Claude Code Output: JSON with Tool Call Prompt
 // Build context based on onboarding type
-let additionalContext = `# bkit Vibecoding Kit v1.5.8 - Session Startup\n\n`;
+let additionalContext = `# bkit Vibecoding Kit v1.5.9 - Session Startup\n\n`;
 
   if (onboardingData.hasExistingWork) {
     additionalContext += `## 🔄 Previous Work Detected\n\n`;
@@ -610,6 +610,10 @@ let additionalContext = `# bkit Vibecoding Kit v1.5.8 - Session Startup\n\n`;
         additionalContext += `- Dynamic: 3 teammates (developer, frontend, qa)\n`;
         additionalContext += `- Patterns: leader → leader → swarm → council → leader\n`;
       }
+      additionalContext += `### CTO Team Stability (v1.5.9)`;
+      additionalContext += `\n- CC v2.1.64+ resolved 4 memory leaks in Agent Teams`;
+      additionalContext += `\n- Long sessions (>2hr) benefit from periodic /clear`;
+      additionalContext += `\n- Use ctrl+f to bulk-stop background agents when done\n`;
       additionalContext += `\n`;
     } else if (detectedLevel !== 'Starter') {
       additionalContext += `## CTO-Led Agent Teams (Not Enabled)\n`;
@@ -629,14 +633,14 @@ let additionalContext = `# bkit Vibecoding Kit v1.5.8 - Session Startup\n\n`;
     'Enterprise': 'bkit-enterprise'
   };
   const suggestedStyle = levelStyleMap[detectedLevel] || 'bkit-pdca-guide';
-  additionalContext += `## Output Styles (v1.5.8)\n`;
+  additionalContext += `## Output Styles (v1.5.9)\n`;
   additionalContext += `- Recommended for ${detectedLevel} level: \`${suggestedStyle}\`\n`;
   additionalContext += `- Change anytime with \`/output-style\`\n`;
   additionalContext += `- Available: bkit-learning, bkit-pdca-guide, bkit-enterprise, bkit-pdca-enterprise\n`;
   additionalContext += `- If styles not visible in /output-style menu, run \`/output-style-setup\`\n\n`;
 
-  // Memory Systems (v1.5.8: auto-memory integration ENH-48)
-  additionalContext += `## Memory Systems (v1.5.8)\n`;
+  // Memory Systems (v1.5.9: auto-memory integration ENH-48)
+  additionalContext += `## Memory Systems (v1.5.9)\n`;
   additionalContext += `### bkit Agent Memory (Auto-Active)\n`;
   additionalContext += `- 14 agents use project scope, 2 agents (starter-guide, pipeline-guide) use user scope\n`;
   additionalContext += `- No configuration needed\n`;
@@ -678,7 +682,7 @@ let additionalContext = `# bkit Vibecoding Kit v1.5.8 - Session Startup\n\n`;
       const pdcaStatusForBatch = getPdcaStatusFull();
       const activeFeatures = pdcaStatusForBatch?.activeFeatures || [];
       if (activeFeatures.length >= 2) {
-        additionalContext += `## Multi-Feature PDCA (v1.5.8)\n`;
+        additionalContext += `## Multi-Feature PDCA (v1.5.9)\n`;
         additionalContext += `- Active features: ${activeFeatures.join(', ')}\n`;
         additionalContext += `- Use \`/batch\` for parallel processing of multiple features\n`;
         additionalContext += `- Enterprise batch supports concurrent Check/Act iterations\n\n`;
@@ -703,8 +707,8 @@ let additionalContext = `# bkit Vibecoding Kit v1.5.8 - Session Startup\n\n`;
   additionalContext += `- 🔄 Automatic PDCA phase progression\n\n`;
   additionalContext += `💡 Important: AI Agent is not perfect. Always verify important decisions.\n`;
 
-  // v1.5.8: Studio Support enhancements
-  additionalContext += `\n## v1.5.8 Enhancements (Studio Support)\n`;
+  // v1.5.9: Studio Support enhancements
+  additionalContext += `\n## v1.5.9 Enhancements (Studio Support)\n`;
   additionalContext += `- Path Registry: centralized state file path management (lib/core/paths.js)\n`;
   additionalContext += `- State files migrated to \`.bkit/{state,runtime,snapshots}/\` structured directory\n`;
   additionalContext += `- Auto-migration from v1.5.7 legacy paths on SessionStart\n`;
@@ -722,11 +726,40 @@ let additionalContext = `# bkit Vibecoding Kit v1.5.8 - Session Startup\n\n`;
   additionalContext += `\n`;
 
   // ============================================================
+  // v1.5.9: Executive Summary Mandatory Output Rule
+  // ============================================================
+  additionalContext += `
+
+## Executive Summary Output Rule (v1.5.9 - Required after PDCA document work)
+
+**Rule: After completing PDCA document work (/pdca plan, /pdca report, /plan-plus), you MUST output the Executive Summary table in your response.**
+
+### When to output:
+- After /pdca plan completes (Plan document created/updated)
+- After /pdca report completes (Report document created/updated)
+- After /plan-plus completes (Plan Plus document created)
+- After any PDCA document update that includes an Executive Summary section
+
+### What to output:
+Extract and display the Executive Summary section from the document, including:
+1. **Project overview table** (Feature, dates, duration)
+2. **Results summary** (Match Rate, items, files, lines)
+3. **Value Delivered 4-perspective table** (Problem / Solution / Function UX Effect / Core Value)
+
+### Why:
+Users should see the summary immediately in the response without having to open the file. This is the same principle as bkit Feature Usage — mandatory inline output for key information.
+
+### Position:
+- Output Executive Summary BEFORE the bkit Feature Usage report
+- Both are required: Executive Summary (after document work) + Feature Usage (always)
+`;
+
+  // ============================================================
   // v1.4.1: bkit Feature Usage Report Rule (Response Report Rule)
   // ============================================================
   additionalContext += `
 
-## 📊 bkit Feature Usage Report (v1.5.8 - Required for all responses)
+## 📊 bkit Feature Usage Report (v1.5.9 - Required for all responses)
 
 **Rule: Include the following format at the end of every response to report bkit feature usage.**
 
@@ -782,7 +815,7 @@ AskUserQuestion, SessionStart Hook, Read, Write, Edit, Bash
 `;
 
 const response = {
-  systemMessage: `bkit Vibecoding Kit v1.5.8 activated (Claude Code)`,
+  systemMessage: `bkit Vibecoding Kit v1.5.9 activated (Claude Code)`,
   hookSpecificOutput: {
     hookEventName: "SessionStart",
     onboardingType: onboardingData.type,

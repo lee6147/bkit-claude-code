@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.9] - 2026-03-05
+
+### Added
+- **Executive Summary Module** (`lib/pdca/executive-summary.js`): 3 new exports (generateExecutiveSummary, formatExecutiveSummary, generateBatchSummary)
+- **AskUserQuestion Preview UX**: Rich Markdown previews in PDCA phase transitions via buildNextActionQuestion()
+- **plan-plus-stop.js**: New PostToolUse hook script for Plan Plus skill
+- **ENH-74**: agent_id/agent_type first-class extraction in 5 hook scripts
+- **ENH-75**: continue:false teammate lifecycle control in TaskCompleted/TeammateIdle hooks
+
+### Changed
+- **lib/common.js**: 184 → 199 exports (+15 from executive-summary and automation modules)
+- **lib/pdca/automation.js**: Added buildNextActionQuestion(), formatAskUserQuestion with preview support
+- **templates/plan.template.md**: Added Executive Summary section
+- **templates/plan-plus.template.md**: Added Executive Summary section
+- **templates/report.template.md**: Added Value Delivered table
+- **skills/pdca/SKILL.md**: Added Executive Summary generation guidelines
+- **hooks/hooks.json**: Removed InstructionsLoaded hook event (-6 lines)
+
+### Fixed
+- No bug fixes in this release
+
+---
+
 ## [1.5.8] - 2026-03-01
 
 ### Added

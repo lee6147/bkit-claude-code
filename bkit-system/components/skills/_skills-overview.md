@@ -1,11 +1,12 @@
 # Skills Overview
 
-> 27 Skills defined in bkit (v1.5.8)
+> 27 Skills defined in bkit (v1.5.9)
 >
 > **v1.4.1**: Added Context Engineering perspective - Domain Knowledge Layer
 > **v1.5.0**: Claude Code Exclusive
 > **v1.5.7**: /simplify, /batch CC command awareness in skills, CC_COMMAND_PATTERNS integration
 > **v1.5.8**: Studio Support - state file path references updated in PDCA skills
+> **v1.5.9**: Executive Summary module, AskUserQuestion Preview UX, ENH-74~81, 199 exports
 
 ## What are Skills?
 

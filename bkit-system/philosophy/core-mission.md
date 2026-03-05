@@ -117,7 +117,7 @@ After:  /learn-claude-code → Systematic training
 
 ---
 
-## Current Implementation (v1.5.8)
+## Current Implementation (v1.5.9)
 
 > **v1.5.3**: CTO-Led Agent Teams + Team Visibility + Claude Code Exclusive
 > **v1.5.4**: bkend MCP Accuracy Fix - embodying "No Guessing" philosophy through exact MCP tool names (19→28+)
@@ -125,6 +125,7 @@ After:  /learn-claude-code → Systematic training
 > **v1.5.6**: Auto-Memory Integration - CC v2.1.59 auto-memory, ENH-48~51, 182 exports
 > **v1.5.7**: /simplify + /batch PDCA Integration - CC v2.1.63 HTTP hooks, CC_COMMAND_PATTERNS, English conversion
 > **v1.5.8**: Studio Support - Path Registry (centralized state paths), state directory migration, auto-migration, 186 exports
+> **v1.5.9**: Executive Summary module, AskUserQuestion Preview UX, ENH-74~81, 199 exports
 
 ### Component Counts
 

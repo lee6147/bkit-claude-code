@@ -128,7 +128,7 @@ For deeper understanding, explore the `bkit-system/` folder:
 
 bkit is not just a collection of prompts—it's a **production-grade plugin architecture** with carefully designed components that work together as a cohesive system.
 
-### Component Inventory (v1.5.8)
+### Component Inventory (v1.5.9)
 
 | Component | Count | Purpose |
 |-----------|-------|---------|
@@ -197,6 +197,8 @@ const { classifyTask } = require('./lib/task');
 // Legacy: Still supported via Migration Bridge
 const { debugLog, getConfig } = require('./lib/common');
 ```
+
+> **v1.5.9**: Executive Summary module (3 exports), AskUserQuestion Preview UX, ENH-74~81 (agent_id/agent_type, continue:false), 199 exports
 
 > **v1.5.8**: Claude Code Exclusive with CTO-Led Agent Teams (16 agents), Plan Plus skill, bkend MCP Accuracy Fix (28+ tools), Output Styles, Agent Memory, Team Visibility, /simplify + /batch PDCA integration, auto-memory support, HTTP hooks awareness, Studio Support (Path Registry, state directory migration)
 
@@ -730,7 +732,7 @@ A Claude Code plugin like bkit consists of these components:
 | **Templates** | Document templates for standardization | `templates/` |
 | **Scripts** | Helper scripts for automation | `scripts/` |
 
-### bkit Plugin Structure Example (v1.5.8 - Claude Code Exclusive)
+### bkit Plugin Structure Example (v1.5.9 - Claude Code Exclusive)
 
 ```
 bkit-claude-code/

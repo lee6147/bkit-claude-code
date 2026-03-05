@@ -60,7 +60,7 @@ Learning
   /claude-code-learning          Learn Claude Code
   /claude-code-learning setup    Analyze current project setup
 
-Code Quality (v1.5.8)
+Code Quality (v1.5.9)
   /simplify                  Review changed code for reuse, quality, efficiency
   /batch                     Process multiple features in batch mode
 

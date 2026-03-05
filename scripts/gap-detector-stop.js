@@ -139,10 +139,50 @@ Next steps:
       question: `Match rate ${matchRate}%. Generate completion report?`,
       header: 'Complete',
       options: [
-        { label: 'Generate report (Recommended)', description: `Run /pdca-report ${feature || ''}` },
-        { label: '/simplify code cleanup', description: 'Improve code quality then generate report' },
-        { label: 'Continue improving', description: `Run /pdca-iterate ${feature || ''}` },
-        { label: 'Later', description: 'Keep current state' }
+        {
+          label: 'Generate report (Recommended)',
+          description: `Run /pdca-report ${feature || ''}`,
+          preview: [
+            '## Completion Report',
+            '',
+            `**Command**: \`/pdca report ${feature || ''}\``,
+            `**Current Match Rate**: ${matchRate}%`,
+            '',
+            '**Output**: report.md (Plan/Design/Implementation/Analysis integrated)'
+          ].join('\n')
+        },
+        {
+          label: '/simplify code cleanup',
+          description: 'Improve code quality then generate report',
+          preview: [
+            '## /simplify Code Cleanup',
+            '',
+            '**Command**: `/simplify`',
+            '',
+            'Improve code quality then proceed to report generation'
+          ].join('\n')
+        },
+        {
+          label: 'Continue improving',
+          description: `Run /pdca-iterate ${feature || ''}`,
+          preview: [
+            '## Continue Improvement',
+            '',
+            `**Command**: \`/pdca iterate ${feature || ''}\``,
+            '',
+            'Start new iteration (re-analyze gaps after fixes)'
+          ].join('\n')
+        },
+        {
+          label: 'Later',
+          description: 'Keep current state',
+          preview: [
+            '## Defer',
+            '',
+            `Current state (${matchRate}%) saved to .pdca-status.json`,
+            'Resume with `/pdca status` later'
+          ].join('\n')
+        }
       ],
       multiSelect: false
     }]
@@ -170,9 +210,41 @@ Recommended actions:
       question: `Maximum iterations reached. How to proceed?`,
       header: 'Max Iterations',
       options: [
-        { label: 'Manual fix', description: 'Review and fix code manually' },
-        { label: 'Complete as-is', description: 'Generate report with warning' },
-        { label: 'Update design', description: 'Update design to match implementation' }
+        {
+          label: 'Manual fix',
+          description: 'Review and fix code manually',
+          preview: [
+            '## Manual Review',
+            '',
+            `**Max iterations reached**: ${iterCount}/${maxIterations}`,
+            `**Current Match Rate**: ${matchRate}%`,
+            '',
+            'Review gaps manually and apply targeted fixes before re-analyzing'
+          ].join('\n')
+        },
+        {
+          label: 'Complete as-is',
+          description: 'Generate report with warning',
+          preview: [
+            '## Complete with Warning',
+            '',
+            `**Command**: \`/pdca report ${feature || ''}\``,
+            `**Match Rate**: ${matchRate}% (below ${threshold}% threshold)`,
+            '',
+            'Generate completion report documenting unresolved gaps'
+          ].join('\n')
+        },
+        {
+          label: 'Update design',
+          description: 'Update design to match implementation',
+          preview: [
+            '## Update Design Document',
+            '',
+            `**Target**: docs/02-design/features/${feature || 'feature'}.design.md`,
+            '',
+            'Align design spec with current implementation to reflect intentional differences'
+          ].join('\n')
+        }
       ],
       multiSelect: false
     }]
@@ -198,9 +270,42 @@ Options:
       question: `Match rate ${matchRate}%. Auto-improve?`,
       header: 'Auto-Fix',
       options: [
-        { label: 'Auto-improve (Recommended)', description: `Run /pdca-iterate (${iterCount + 1}/${maxIterations})` },
-        { label: 'Manual fix', description: 'Fix code manually then re-analyze' },
-        { label: 'Complete as-is', description: 'Proceed with warning' }
+        {
+          label: 'Auto-improve (Recommended)',
+          description: `Run /pdca-iterate (${iterCount + 1}/${maxIterations})`,
+          preview: [
+            '## Auto-Fix Iteration',
+            '',
+            `**Command**: \`/pdca iterate ${feature || ''}\``,
+            `**Iteration**: ${iterCount + 1}/${maxIterations}`,
+            `**Current Match Rate**: ${matchRate}% → target ${threshold}%`,
+            '',
+            'Automatically detect and fix implementation gaps against design'
+          ].join('\n')
+        },
+        {
+          label: 'Manual fix',
+          description: 'Fix code manually then re-analyze',
+          preview: [
+            '## Manual Fix',
+            '',
+            `**Current Match Rate**: ${matchRate}%`,
+            '',
+            'Apply targeted fixes manually, then run `/pdca check` to re-analyze'
+          ].join('\n')
+        },
+        {
+          label: 'Complete as-is',
+          description: 'Proceed with warning',
+          preview: [
+            '## Complete with Warning',
+            '',
+            `**Command**: \`/pdca report ${feature || ''}\``,
+            `**Match Rate**: ${matchRate}% (below ${threshold}% threshold)`,
+            '',
+            'Generate report with gap warning — recommended only if gaps are intentional'
+          ].join('\n')
+        }
       ],
       multiSelect: false
     }]
@@ -225,9 +330,42 @@ Recommended actions:
       question: `Match rate ${matchRate}% is low. Proceed with auto-improvement?`,
       header: 'Low Match',
       options: [
-        { label: 'Auto-improve (Strongly recommended)', description: `Run /pdca-iterate (${iterCount + 1}/${maxIterations})` },
-        { label: 'Full design update', description: 'Rewrite design to match implementation' },
-        { label: 'Manual fix', description: 'Fix code manually' }
+        {
+          label: 'Auto-improve (Strongly recommended)',
+          description: `Run /pdca-iterate (${iterCount + 1}/${maxIterations})`,
+          preview: [
+            '## Auto-Fix Iteration',
+            '',
+            `**Command**: \`/pdca iterate ${feature || ''}\``,
+            `**Iteration**: ${iterCount + 1}/${maxIterations}`,
+            `**Current Match Rate**: ${matchRate}% — significant gaps detected`,
+            '',
+            'Automatically resolve major implementation gaps against design spec'
+          ].join('\n')
+        },
+        {
+          label: 'Full design update',
+          description: 'Rewrite design to match implementation',
+          preview: [
+            '## Full Design Rewrite',
+            '',
+            `**Target**: docs/02-design/features/${feature || 'feature'}.design.md`,
+            `**Current Match Rate**: ${matchRate}%`,
+            '',
+            'Rewrite design document to align with current implementation (significant effort)'
+          ].join('\n')
+        },
+        {
+          label: 'Manual fix',
+          description: 'Fix code manually',
+          preview: [
+            '## Manual Intervention',
+            '',
+            `**Current Match Rate**: ${matchRate}% — manual review strongly recommended`,
+            '',
+            'Review gap analysis report and apply targeted fixes before re-running check'
+          ].join('\n')
+        }
       ],
       multiSelect: false
     }]

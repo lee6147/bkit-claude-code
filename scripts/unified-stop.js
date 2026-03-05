@@ -29,6 +29,7 @@ const {
  */
 const SKILL_HANDLERS = {
   'pdca': './pdca-skill-stop.js',
+  'plan-plus': './plan-plus-stop.js',  // v1.5.9: Executive Summary + AskUserQuestion
   'code-review': './code-review-stop.js',
   'phase-8-review': './phase8-review-stop.js',
   'claude-code-learning': './learning-stop.js',
@@ -106,6 +107,11 @@ function detectActiveAgent(hookContext) {
     return hookContext.tool_input.subagent_type;
   }
 
+  // v1.5.9: ENH-74 use agent_id as detection source
+  if (hookContext.agent_id) {
+    return hookContext.agent_id;
+  }
+
   // 3. From session context
   const sessionAgent = getActiveAgent();
   if (sessionAgent) {
@@ -171,10 +177,16 @@ try {
   debugLog('UnifiedStop', 'Failed to parse context', { error: e.message });
 }
 
+// v1.5.9: ENH-74 agent_id/agent_type extraction
+const agentId = hookContext.agent_id || null;
+const agentType = hookContext.agent_type || null;
+
 debugLog('UnifiedStop', 'Context received', {
   hasSkillName: !!hookContext.skill_name,
   hasAgentName: !!hookContext.agent_name,
-  hasToolInput: !!hookContext.tool_input
+  hasToolInput: !!hookContext.tool_input,
+  agentId,
+  agentType
 });
 
 // Detect active skill/agent

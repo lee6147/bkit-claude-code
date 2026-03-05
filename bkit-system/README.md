@@ -29,6 +29,8 @@
 > **v1.5.7**: CC v2.1.63 /simplify + /batch + HTTP hooks PDCA integration, CC_COMMAND_PATTERNS 8-lang, English conversion
 >
 > **v1.5.8**: Studio Support - Path Registry (lib/core/paths.js), state directory migration (.bkit/{state,runtime,snapshots}/), auto-migration with EXDEV fallback, 186 exports
+>
+> **v1.5.9**: Executive Summary module, AskUserQuestion Preview UX, ENH-74~81, 199 exports
 
 ## Purpose of This Document
 
@@ -70,7 +72,7 @@ bkit is a practical implementation of **Context Engineering**. Context Engineeri
 │  │  L2: Unified Scripts (stop, bash-pre, write-post, etc.)  │  │
 │  │  L3: Agent Frontmatter (constraints only)                │  │
 │  │  L4: Description Triggers (keyword matching)             │  │
-│  │  L5: Scripts (45 Node.js modules)                        │  │
+│  │  L5: Scripts (47 Node.js modules)                        │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │                                 │                               │
 │                                 ▼                               │
@@ -188,7 +190,7 @@ lib/
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                bkit Trigger System (v1.5.8)                      │
+│                bkit Trigger System (v1.5.9)                      │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐      │
@@ -220,8 +222,8 @@ lib/
 | Agents | 16 | Specialized task execution | [[components/agents/_agents-overview]] |
 | Commands | DEPRECATED | Migrated to Skills (v1.4.4) | - |
 | Hooks | 10 events | Event-based triggers (unified) | [[components/hooks/_hooks-overview]] |
-| Scripts | 45 | Actual logic execution | [[components/scripts/_scripts-overview]] |
-| Lib | 5 modules | Shared utilities | `lib/core/`, `lib/pdca/`, `lib/intent/`, `lib/task/`, `lib/team/` (241 functions) |
+| Scripts | 47 | Actual logic execution | [[components/scripts/_scripts-overview]] |
+| Lib | 5 modules | Shared utilities | `lib/core/`, `lib/pdca/`, `lib/intent/`, `lib/task/`, `lib/team/` (199 exports) |
 | Config | 1 | Centralized settings | `bkit.config.json` |
 | Templates | 28 | Document templates | PDCA + Pipeline + Shared |
 

@@ -6,7 +6,7 @@
  * Hook: Stop for pdca skill
  * Part of v1.4.4 Skills/Agents/Commands Enhancement
  *
- * @version 1.5.8
+ * @version 1.5.9
  * @module scripts/pdca-skill-stop
  */
 
@@ -33,51 +33,56 @@ const {
   isFullAutoMode,
   shouldAutoAdvance,
   generateAutoTrigger,
-  getAutomationLevel
+  getAutomationLevel,
+  // v1.5.9: Executive Summary + AskUserQuestion
+  buildNextActionQuestion,
+  formatAskUserQuestion,
+  generateExecutiveSummary,
+  formatExecutiveSummary,
 } = require('../lib/common.js');
 
 // ============================================================
-// v1.4.4 FR-06: PDCA Phase 전환 맵
+// v1.4.4 FR-06: PDCA Phase Transition Map
 // ============================================================
 
 /**
- * PDCA Phase 전환 맵 (v1.4.4)
- * 각 Phase 완료 시 다음 단계로 자동 전환
+ * PDCA Phase Transition Map (v1.4.4)
+ * Auto-transition to next phase on completion
  */
 const PDCA_PHASE_TRANSITIONS = {
   'plan': {
     next: 'design',
     skill: '/pdca design',
-    message: 'Plan 완료. Design 단계로 진행하세요.',
+    message: 'Plan completed. Proceed to Design phase.',
     taskTemplate: '[Design] {feature}'
   },
   'design': {
     next: 'do',
-    skill: null,  // 구현은 수동
-    message: 'Design 완료. 구현을 시작하세요.',
+    skill: null,  // Implementation is manual
+    message: 'Design completed. Start implementation.',
     taskTemplate: '[Do] {feature}'
   },
   'do': {
     next: 'check',
     skill: '/pdca analyze',
-    message: '구현 완료. Gap 분석을 실행하세요.',
+    message: 'Implementation completed. Run Gap analysis.',
     taskTemplate: '[Check] {feature}'
   },
   'check': {
-    // 조건부 전환
+    // Conditional transition
     conditions: [
       {
         when: (ctx) => ctx.matchRate >= 90,
         next: 'report',
         skill: '/pdca report',
-        message: 'Check 통과! 완료 보고서를 생성하세요.',
+        message: 'Check passed! Generate completion report.',
         taskTemplate: '[Report] {feature}'
       },
       {
         when: (ctx) => ctx.matchRate < 90,
         next: 'act',
         skill: '/pdca iterate',
-        message: 'Check 미달. 자동 개선을 실행하세요.',
+        message: 'Check below threshold. Run auto improvement.',
         taskTemplate: '[Act-{N}] {feature}'
       }
     ]
@@ -85,14 +90,14 @@ const PDCA_PHASE_TRANSITIONS = {
   'act': {
     next: 'check',
     skill: '/pdca analyze',
-    message: 'Act 완료. 재검증을 실행하세요.',
+    message: 'Act completed. Run re-verification.',
     taskTemplate: '[Check] {feature}'
   }
 };
 
 /**
- * PDCA 전환 결정 (v1.4.4 FR-06)
- * @param {string} currentPhase - 현재 Phase ('plan', 'design', 'do', 'check', 'act')
+ * Determine PDCA transition (v1.4.4 FR-06)
+ * @param {string} currentPhase - Current Phase ('plan', 'design', 'do', 'check', 'act')
  * @param {Object} context - { matchRate, iterationCount, feature }
  * @returns {Object|null} { next, skill, message, taskTemplate }
  */
@@ -100,7 +105,7 @@ function determinePdcaTransition(currentPhase, context = {}) {
   const transition = PDCA_PHASE_TRANSITIONS[currentPhase];
   if (!transition) return null;
 
-  // 조건부 전환 처리
+  // Conditional transition
   if (transition.conditions) {
     for (const condition of transition.conditions) {
       if (condition.when(context)) {
@@ -115,7 +120,7 @@ function determinePdcaTransition(currentPhase, context = {}) {
     return null;
   }
 
-  // 일반 전환
+  // Standard transition
   return {
     next: transition.next,
     skill: transition.skill,
@@ -166,57 +171,57 @@ debugLog('Skill:pdca:Stop', 'Context extracted', {
 const nextStepMap = {
   plan: {
     nextAction: 'design',
-    message: 'Plan 문서가 생성되었습니다.',
-    question: 'Design 단계로 진행할까요?',
+    message: 'Plan document has been generated.',
+    question: 'Proceed to Design phase?',
     options: [
-      { label: 'Design 진행 (권장)', description: `/pdca design ${feature || '[feature]'}` },
-      { label: '나중에', description: '현재 상태 유지' }
+      { label: 'Start Design (Recommended)', description: `/pdca design ${feature || '[feature]'}` },
+      { label: 'Later', description: 'Keep current state' }
     ]
   },
   design: {
     nextAction: 'do',
-    message: 'Design 문서가 생성되었습니다.',
-    question: '구현을 시작할까요?',
+    message: 'Design document has been generated.',
+    question: 'Start implementation?',
     options: [
-      { label: '구현 시작 (권장)', description: `/pdca do ${feature || '[feature]'}` },
-      { label: '나중에', description: '현재 상태 유지' }
+      { label: 'Start Implementation (Recommended)', description: `/pdca do ${feature || '[feature]'}` },
+      { label: 'Later', description: 'Keep current state' }
     ]
   },
   do: {
     nextAction: 'analyze',
-    message: '구현 가이드가 제공되었습니다.',
-    question: '구현이 완료되면 Gap 분석을 실행하세요.',
+    message: 'Implementation guide has been provided.',
+    question: 'Run Gap analysis when implementation is complete.',
     options: [
-      { label: 'Gap 분석 실행', description: `/pdca analyze ${feature || '[feature]'}` },
-      { label: '계속 구현', description: '구현 계속 진행' }
+      { label: 'Run Gap Analysis', description: `/pdca analyze ${feature || '[feature]'}` },
+      { label: 'Continue Implementing', description: 'Continue implementation' }
     ]
   },
   analyze: {
     nextAction: 'iterate',
-    message: 'Gap 분석이 완료되었습니다.',
-    question: '결과에 따라 다음 단계를 선택하세요.',
+    message: 'Gap analysis completed.',
+    question: 'Select next step based on results.',
     options: [
-      { label: '자동 개선', description: `/pdca iterate ${feature || '[feature]'}` },
-      { label: '완료 보고서', description: `/pdca report ${feature || '[feature]'}` },
-      { label: '수동 수정', description: '직접 코드 수정 후 재분석' }
+      { label: 'Auto Improve', description: `/pdca iterate ${feature || '[feature]'}` },
+      { label: 'Completion Report', description: `/pdca report ${feature || '[feature]'}` },
+      { label: 'Manual Fix', description: 'Manually fix code then re-analyze' }
     ]
   },
   iterate: {
     nextAction: 'analyze',
-    message: '자동 개선이 완료되었습니다.',
-    question: 'Gap 분석을 다시 실행할까요?',
+    message: 'Auto improvement completed.',
+    question: 'Run Gap analysis again?',
     options: [
-      { label: '재분석 (권장)', description: `/pdca analyze ${feature || '[feature]'}` },
-      { label: '완료 보고서', description: `/pdca report ${feature || '[feature]'}` }
+      { label: 'Re-analyze (Recommended)', description: `/pdca analyze ${feature || '[feature]'}` },
+      { label: 'Completion Report', description: `/pdca report ${feature || '[feature]'}` }
     ]
   },
   report: {
     nextAction: null,
-    message: '완료 보고서가 생성되었습니다.',
-    question: 'PDCA 사이클이 완료되었습니다!',
+    message: 'Completion report has been generated.',
+    question: 'PDCA cycle completed!',
     options: [
-      { label: '아카이브', description: '/archive 명령으로 문서 정리' },
-      { label: '새 기능 시작', description: '/pdca plan [new-feature]' }
+      { label: 'Archive', description: 'Archive documents with /pdca archive' },
+      { label: 'Start New Feature', description: '/pdca plan [new-feature]' }
     ]
   },
   status: {
@@ -265,7 +270,7 @@ if (nextStep && nextStep.message) {
     });
 
     if (autoTrigger) {
-      guidance += `\n\n🤖 [${automationLevel}] 자동 진행: ${autoTrigger.skill}`;
+      guidance += `\n\n🤖 [${automationLevel}] Auto-advance: ${autoTrigger.skill}`;
       debugLog('Skill:pdca:Stop', 'Auto-advance triggered', { autoTrigger });
     }
   } else if (nextStep.question && nextStep.options) {
@@ -304,7 +309,7 @@ if (action && feature && ['plan', 'design', 'do', 'analyze', 'iterate', 'report'
           taskCount: chain.entries.length,
           firstTaskId: chain.entries[0]?.id
         });
-        guidance += `\n\n📋 PDCA Task Chain 생성됨 (${chain.entries.length}개 Task)`;
+        guidance += `\n\n📋 PDCA Task Chain created (${chain.entries.length} Tasks)`;
       }
     } catch (e) {
       debugLog('Skill:pdca:Stop', 'Task chain creation failed', { error: e.message });
@@ -372,7 +377,44 @@ debugLog('Skill:pdca:Stop', 'Hook completed', {
   hasNextStep: !!nextStep?.nextAction
 });
 
-// Claude Code: JSON output
+// v1.5.9: Executive Summary + AskUserQuestion for plan/report (P2-FR-07)
+if (feature && (action === 'plan' || action === 'report') && !autoTrigger) {
+  const summary = generateExecutiveSummary(feature, action);
+  const summaryText = formatExecutiveSummary(summary, 'full');
+
+  const featureData = currentStatus?.features?.[feature] || {};
+  const questionPayload = buildNextActionQuestion(action, feature, {
+    matchRate: featureData.matchRate || 0,
+    iterCount: featureData.iterationCount || 0
+  });
+  const formatted = formatAskUserQuestion(questionPayload);
+
+  const execResponse = {
+    decision: 'allow',
+    hookEventName: 'Skill:pdca:Stop',
+    skillResult: {
+      action,
+      feature: feature || 'unknown',
+      nextAction: nextStep?.nextAction || null,
+      automationLevel: automationLevel
+    },
+    systemMessage: [
+      guidance,
+      '',
+      summaryText,
+      '',
+      `---`,
+      '',
+      `Please select next step.`
+    ].join('\n'),
+    userPrompt: JSON.stringify(formatted)
+  };
+
+  console.log(JSON.stringify(execResponse));
+  process.exit(0);
+}
+
+// Claude Code: JSON output (default for other actions)
 const response = {
   decision: 'allow',
   hookEventName: 'Skill:pdca:Stop',
@@ -388,10 +430,10 @@ const response = {
   autoTrigger: autoTrigger,
   systemMessage: guidance ? (
     `${guidance}\n\n` +
-    `## 🚨 MANDATORY: AskUserQuestion 호출\n\n` +
-    `아래 파라미터로 사용자에게 다음 단계를 질문하세요:\n\n` +
-    `${userPrompt || '(다음 단계 선택)'}\n\n` +
-    `### 선택별 동작:\n` +
+    `## MANDATORY: AskUserQuestion\n\n` +
+    `Ask the user to select next step with these parameters:\n\n` +
+    `${userPrompt || '(select next step)'}\n\n` +
+    `### Actions by selection:\n` +
     (nextStep?.options ? nextStep.options.map(opt => `- **${opt.label}** → ${opt.description}`).join('\n') : '')
   ) : null
 };

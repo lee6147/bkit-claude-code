@@ -25,6 +25,7 @@
 > **v1.5.7**: CC_COMMAND_PATTERNS (8-lang CC command awareness), /simplify + /batch PDCA integration, 182 exports, English conversion (3 stop scripts)
 >
 > **v1.5.8**: Path Registry (lib/core/paths.js), state directory migration (.bkit/{state,runtime,snapshots}/), 186 exports, auto-migration with EXDEV fallback
+> **v1.5.9**: Executive Summary, AskUserQuestion Preview UX, ENH-74~81, 199 exports
 
 ## What is Context Engineering?
 
@@ -113,7 +114,7 @@ bkit v1.5.4 builds on the original 8 functional requirements (FR-01~FR-08) with 
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Library Modules (15 modules across 5 subdirectories, 186 exports)
+### Library Modules (15 modules across 5 subdirectories, 199 exports)
 
 **Modular subdirectories** (v1.5.4 — refactored from monolithic common.js):
 
@@ -124,7 +125,7 @@ bkit v1.5.4 builds on the original 8 functional requirements (FR-01~FR-08) with 
 | `lib/intent/` | 4 | 19 | 8-language detection, trigger matching, ambiguity analysis |
 | `lib/task/` | 5 | 26 | Task classification, context, creation, tracking |
 | `lib/team/` | 9 | 40 | Coordinator, strategy, CTO logic, state-writer, communication |
-| **Subtotal** | **31** | **180** | |
+| **Subtotal** | **31** | **199** | |
 
 **Top-level modules** (FR implementations, unchanged):
 
@@ -136,7 +137,7 @@ bkit v1.5.4 builds on the original 8 functional requirements (FR-01~FR-08) with 
 | `lib/permission-manager.js` | FR-05 | Permission hierarchy | `checkPermission()`, `getToolPermission()` |
 | `lib/memory-store.js` | FR-08 | Session persistence | `setMemory()`, `getMemory()`, `deleteMemory()` |
 | `lib/skill-orchestrator.js` | — | Skill routing | `orchestrateSkillPre()`, `getAgentForAction()` |
-| `lib/common.js` | All | **Bridge layer** | Re-exports all 182 functions for backward compatibility |
+| `lib/common.js` | All | **Bridge layer** | Re-exports all 199 functions for backward compatibility |
 
 ---
 
@@ -216,7 +217,7 @@ Agents define **role-based behavioral rules**.
 
 ### 3. State Management Layer (5-Module Architecture)
 
-A **modular state management system** composed of 186 exports across 5 subdirectories, with `lib/common.js` as a backward-compatible bridge layer.
+A **modular state management system** composed of 199 exports across 5 subdirectories, with `lib/common.js` as a backward-compatible bridge layer.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -240,7 +241,7 @@ A **modular state management system** composed of 186 exports across 5 subdirect
 │  │  5 files, 26 exp │  │  9 files, 40 exp │  │  (Bridge Layer)  │  │
 │  │                  │  │                  │  │                  │  │
 │  │  • Classification│  │  • Coordinator   │  │  Re-exports all  │  │
-│  │  • Context       │  │  • Strategy      │  │  182 functions   │  │
+│  │  • Context       │  │  • Strategy      │  │  199 functions   │  │
 │  │  • Creator       │  │  • CTO Logic     │  │  from 5 modules  │  │
 │  │  • Tracker       │  │  • State-Writer  │  │  for backward    │  │
 │  │                  │  │  • Communication │  │  compatibility   │  │
@@ -251,7 +252,7 @@ A **modular state management system** composed of 186 exports across 5 subdirect
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-> **Migration Note**: As of v1.5.4, `lib/common.js` is a pure bridge layer. All 182 functions originate in subdirectory modules. Existing scripts that `require('./lib/common.js')` continue to work without changes.
+> **Migration Note**: As of v1.5.4, `lib/common.js` is a pure bridge layer. All 199 functions originate in subdirectory modules. Existing scripts that `require('./lib/common.js')` continue to work without changes.
 
 ---
 
@@ -401,7 +402,7 @@ Reports bkit feature usage status at the end of every response.
 | Agents | `agents/*.md` | 16 |
 | Scripts | `scripts/*.js` | 47 |
 | Templates | `templates/*.md` + `pipeline/` + `shared/` | 13 + subdirs |
-| lib/ modules | `lib/core/`, `lib/pdca/`, `lib/intent/`, `lib/task/`, `lib/team/` | 5 dirs, 186 exports |
+| lib/ modules | `lib/core/`, `lib/pdca/`, `lib/intent/`, `lib/task/`, `lib/team/` | 5 dirs, 199 exports |
 | lib/ top-level | `context-hierarchy`, `import-resolver`, `context-fork`, `permission-manager`, `memory-store`, `skill-orchestrator`, `common` (bridge) | 7 modules |
 | Output Styles | `output-styles/*.md` | 4 |
 | Context File | `CLAUDE.md` | 1 |

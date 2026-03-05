@@ -37,6 +37,12 @@
 - English conversion for 3 stop scripts
 - 184 exports (common.js bridge)
 
+### v1.5.9 (2026-03-05) - Executive Summary
+- Executive Summary module (lib/pdca/executive-summary.js) - 3 exports (generateExecutiveSummary, formatExecutiveSummary, generateBatchSummary)
+- AskUserQuestion Preview UX - Rich Markdown previews in PDCA phase transitions
+- ENH-74~81: agent_id/agent_type first-class extraction, continue:false teammate lifecycle control
+- 199 exports (+generateExecutiveSummary, +formatExecutiveSummary, +generateBatchSummary, +buildNextActionQuestion, and more)
+
 ### v1.5.8 (2026-03-01) - Studio Support
 - Path Registry (lib/core/paths.js) - centralized state file paths
 - State directory migration (.bkit/{state,runtime,snapshots}/)
@@ -254,7 +260,7 @@ The following skills were consolidated:
 ## Infrastructure
 
 ### Shared Library
-- `lib/common.js` - Shared utility functions (v1.5.8, **186 exports** via bridge)
+- `lib/common.js` - Shared utility functions (v1.5.9, **199 exports** via bridge)
 
 #### Platform Detection (v1.5.0 - Claude Code Exclusive)
   - `isClaudeCode()` - Check if running in Claude Code

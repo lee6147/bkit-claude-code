@@ -2,14 +2,14 @@
 /**
  * pdca-task-completed.js - TaskCompleted Hook Handler (v1.5.1)
  *
- * PDCA Task가 완료될 때 자동으로 다음 단계를 진행하는 hook.
+ * Auto-advances to the next PDCA phase when a Task is completed.
  *
- * 동작:
- * 1. 완료된 Task의 subject에서 PDCA phase 감지 ([Plan], [Design], etc.)
- * 2. feature name 추출
- * 3. shouldAutoAdvance() 확인
- * 4. 자동 진행 시 다음 phase 안내 메시지 출력
- * 5. .bkit-memory.json 업데이트
+ * Flow:
+ * 1. Detect PDCA phase from completed Task's subject ([Plan], [Design], etc.)
+ * 2. Extract feature name
+ * 3. Check shouldAutoAdvance()
+ * 4. Output next phase guidance message on auto-advance
+ * 5. Update .bkit-memory.json
  */
 
 const {
@@ -20,17 +20,10 @@ const {
   autoAdvancePdcaPhase,
   shouldAutoAdvance,
   getAutomationLevel,
+  formatAskUserQuestion,
+  buildNextActionQuestion,
+  detectPdcaFromTaskSubject,
 } = require('../lib/common.js');
-
-// PDCA Phase 감지 패턴
-const PDCA_TASK_PATTERNS = {
-  plan:   /\[Plan\]\s+(.+)/,
-  design: /\[Design\]\s+(.+)/,
-  do:     /\[Do\]\s+(.+)/,
-  check:  /\[Check\]\s+(.+)/,
-  act:    /\[Act(?:-\d+)?\]\s+(.+)/,
-  report: /\[Report\]\s+(.+)/,
-};
 
 function main() {
   debugLog('TaskCompleted', 'Hook started');
@@ -45,35 +38,31 @@ function main() {
     return;
   }
 
-  // Task subject에서 PDCA phase 감지
+  // Detect PDCA phase from task subject
   const taskSubject = hookContext.task_subject
     || hookContext.tool_input?.subject
     || '';
 
-  let detectedPhase = null;
-  let featureName = null;
+  // v1.5.9: ENH-74 agent_id first-priority extraction
+  const agentId = hookContext.agent_id || null;
+  const agentType = hookContext.agent_type || null;
 
-  for (const [phase, pattern] of Object.entries(PDCA_TASK_PATTERNS)) {
-    const match = taskSubject.match(pattern);
-    if (match) {
-      detectedPhase = phase;
-      featureName = match[1]?.trim();
-      break;
-    }
+  // Use detectPdcaFromTaskSubject instead of inline duplicate patterns
+  const detected = detectPdcaFromTaskSubject(taskSubject);
+  if (!detected) {
+    // not a PDCA task
+    outputAllow('Non-PDCA task completed');
+    process.exit(0);
   }
-
-  if (!detectedPhase || !featureName) {
-    debugLog('TaskCompleted', 'Not a PDCA task', { subject: taskSubject });
-    outputAllow('TaskCompleted processed.', 'TaskCompleted');
-    return;
-  }
+  const detectedPhase = detected.phase;
+  const featureName = detected.feature;
 
   debugLog('TaskCompleted', 'PDCA task detected', {
     phase: detectedPhase,
     feature: featureName
   });
 
-  // 자동 진행 확인
+  // Check auto-advance
   const automationLevel = getAutomationLevel();
   if (shouldAutoAdvance(detectedPhase)) {
     const pdcaStatus = getPdcaStatusFull();
@@ -83,17 +72,22 @@ function main() {
     const result = autoAdvancePdcaPhase(featureName, detectedPhase, { matchRate });
 
     if (result) {
+      const nextPhase = result.phase;
       const response = {
-        systemMessage: `PDCA auto-advance: ${detectedPhase} → ${result.phase}`,
+        systemMessage: `PDCA auto-advance: ${detectedPhase} → ${nextPhase}`,
+        // v1.5.9: ENH-75 quality gate - stop teammate when reaching report/completed
+        continue: (nextPhase === 'report' || nextPhase === 'completed') ? false : undefined,
         hookSpecificOutput: {
           hookEventName: "TaskCompleted",
           pdcaPhase: detectedPhase,
-          nextPhase: result.phase,
+          nextPhase: nextPhase,
           feature: featureName,
           autoAdvanced: true,
+          agentId,
+          agentType,
           additionalContext: `\n## PDCA Auto-Advance\n` +
             `Task [${detectedPhase.toUpperCase()}] ${featureName} completed.\n` +
-            `Next phase: ${result.phase}\n` +
+            `Next phase: ${nextPhase}\n` +
             (result.trigger ? `Suggested command: /pdca ${result.trigger.args}\n` : '')
         }
       };
@@ -125,13 +119,13 @@ function main() {
         }
       }
 
-      // State writer: 진행률 업데이트 + 메시지 기록 (v1.5.3 Team Visibility)
+      // State writer: update progress + record message (v1.5.3 Team Visibility)
       try {
         if (teamModule && teamModule.updateProgress) {
           const progress = teamModule.getTeamProgress(featureName, detectedPhase);
           teamModule.updateProgress(progress);
 
-          // Phase transition 시 메시지 기록
+          // Record message on phase transition
           if (response.hookSpecificOutput.autoAdvanced) {
             teamModule.addRecentMessage({
               from: 'system',
@@ -147,6 +141,38 @@ function main() {
       console.log(JSON.stringify(response));
       process.exit(0);
     }
+  }
+
+  // v1.5.9: Executive Summary + Next Action for manual mode (plan/report completion)
+  if (detectedPhase === 'plan' || detectedPhase === 'report') {
+    const featureStatus = getPdcaStatusFull()?.features?.[featureName] || {};
+    const questionPayload = buildNextActionQuestion(detectedPhase, featureName, {
+      matchRate: featureStatus.matchRate || 0,
+      iterCount: featureStatus.iterationCount || 0
+    });
+    const formatted = formatAskUserQuestion(questionPayload);
+
+    // v1.5.9: P2-FR-07 Executive Summary + AskUserQuestion sequential output
+    const { generateExecutiveSummary, formatExecutiveSummary } = require('../lib/common.js');
+    const summary = generateExecutiveSummary(featureName, detectedPhase);
+    const summaryText = formatExecutiveSummary(summary, 'full');
+
+    const manualResponse = {
+      systemMessage: [
+        `## PDCA ${detectedPhase.toUpperCase()} Completed`,
+        '',
+        `**Feature**: ${featureName}`,
+        '',
+        summaryText,
+        '',
+        `---`,
+        '',
+        `**Please select next step.**`
+      ].join('\n'),
+      userPrompt: JSON.stringify(formatted)
+    };
+    console.log(JSON.stringify(manualResponse));
+    process.exit(0);
   }
 
   outputAllow(`PDCA Task [${detectedPhase}] ${featureName} completed.`, 'TaskCompleted');

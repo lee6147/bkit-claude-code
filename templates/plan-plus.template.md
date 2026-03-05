@@ -23,6 +23,17 @@ variables:
 
 ---
 
+## Executive Summary
+
+| Perspective | Content |
+|-------------|---------|
+| **Problem** | {Core problem this feature solves in 1-2 sentences} |
+| **Solution** | {Selected approach summary in 1-2 sentences} |
+| **Function/UX Effect** | {Expected functional and UX impact} |
+| **Core Value** | {Core value proposition in 1-2 sentences} |
+
+---
+
 ## 1. User Intent Discovery
 
 ### 1.1 Core Problem

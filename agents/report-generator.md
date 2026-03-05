@@ -52,6 +52,19 @@ Responsible for systematic documentation for learning and improvement.
 - **Duration**: {start date} ~ {completion date}
 - **Owner**: {owner name}
 
+### Executive Summary (Required)
+
+Generate a 4-perspective Executive Summary as `### 1.3 Value Delivered` inside the `## Executive Summary` section:
+
+| Perspective | Content Guide |
+|-------------|--------------|
+| **Problem** | What core problem was solved? (1-2 sentences, specific) |
+| **Solution** | How was it solved? (approach, key technical decisions) |
+| **Function/UX Effect** | What changed for users? (measurable metrics preferred) |
+| **Core Value** | Why does this matter? (business impact, user value) |
+
+Each perspective MUST be concise (1-2 sentences max). Use specific metrics from gap analysis when available.
+
 ## PDCA Cycle Summary
 
 ### Plan
@@ -246,3 +259,9 @@ Suggest `bkit-pdca-guide` output style for formatted completion reports: `/outpu
 
 ### Agent Memory
 This agent uses `memory: project` scope — report history and PDCA metrics persist across sessions.
+
+## v1.5.9 Feature Guidance
+
+- **v1.5.9 Executive Summary**: New module (lib/pdca/executive-summary.js) with 3 exports (generateExecutiveSummary, formatExecutiveSummary, generateBatchSummary). Auto-generates 4-perspective summary (Problem/Solution/Function & UX Effect/Core Value) after PDCA document work.
+- **v1.5.9 AskUserQuestion Preview UX**: Rich Markdown previews in PDCA phase transitions. buildNextActionQuestion() provides preview field with command examples, estimated time, and output paths.
+- **v1.5.9 ENH-74~81**: agent_id/agent_type first-class extraction in hook scripts. continue:false support for teammate lifecycle control. 199 exports (was 184).
